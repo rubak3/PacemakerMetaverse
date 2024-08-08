@@ -26,7 +26,6 @@ public class OpenAIManager2 : MonoBehaviour
     
     private OpenAI.Assistants.Assistant assistant;
     private string fileUploadId; 
-        //"file-xOXMQx9ASK8inedWI2opDuKG";
     private string path;
 
     public TMP_Text outputField;
@@ -45,13 +44,12 @@ public class OpenAIManager2 : MonoBehaviour
         string url = "https://gateway.pinata.cloud/ipfs/" + RecordsHash;
         StartCoroutine(DownloadJsonFromIPFS(url));
 
-        //StartCoroutine(DownloadJsonFromIPFS("https://gateway.pinata.cloud/ipfs/QmetEbSodF6BVPvZ6ctS3NkbEjTCehFuFFxatpjAVowAZW"));
         OKButton.onClick.AddListener(() => GetResponse());
     }
 
     private async void InitializeClients()
     {
-        azureClient = new OpenAIClient("");
+        azureClient = new OpenAIClient("Your-API-Key");
         #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         assistantClient = azureClient.GetAssistantClient();
         #pragma warning restore OPENAI001
@@ -86,7 +84,7 @@ public class OpenAIManager2 : MonoBehaviour
 
         using (var httpClient = new HttpClient())
         {
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "sk-proj-0OkDPPWoSCei6OeXT5Y9T3BlbkFJp4AaztkYo3CoK5e4Qd6o");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Your-API-Key");
 
             using (var content = new MultipartFormDataContent())
             {
@@ -196,8 +194,8 @@ public class OpenAIManager2 : MonoBehaviour
         form.AddBinaryData("file", fileData, fileName);
 
         UnityWebRequest request = UnityWebRequest.Post("https://api.pinata.cloud/pinning/pinFileToIPFS", form);
-        request.SetRequestHeader("pinata_api_key", "6f3d7100ae4cfbef0795");           // Add API Key to the header
-        request.SetRequestHeader("pinata_secret_api_key", "a62950b38f9b9a503cbe44eace1e7ead3e0bae4faf22fbbd81b9008b165a6a35"); // Add API Secret Key to the header
+        request.SetRequestHeader("pinata_api_key", "Your-API-Key");           // Add API Key to the header
+        request.SetRequestHeader("pinata_secret_api_key", "Tour-Secret-API-Key"); // Add API Secret Key to the header
 
         yield return request.SendWebRequest();
 
@@ -231,9 +229,7 @@ public class OpenAIManager2 : MonoBehaviour
     async void uploadSession(string url)
     {
         string contractAddress = "0xDA4BAc5620c9CBDD5d4E135774a0CF56F689abc8";
-        //"0x4fac4dc32d9292Cd3230c51466bf6ff4132d62a2";
         string contractABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"nftManagerSCAddr\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"Doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"User\",\"type\":\"address\"}],\"name\":\"DoctorRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"User\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_SessionID\",\"type\":\"uint256\"}],\"name\":\"SessionUploaded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"User\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"UserDocuments\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"DTMetadata\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"DTRecords\",\"type\":\"string\"}],\"name\":\"UserRequestedToRegister\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"RegisteredDoctors\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"registered\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"patientAddr\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SessionID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_sessionURI\",\"type\":\"string\"}],\"name\":\"UploadSession\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_sessionID\",\"type\":\"uint256\"}],\"name\":\"getSessionURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"registerDoctors\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"Documents\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"DTMetadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"DTRecords\",\"type\":\"string\"}],\"name\":\"requestUserRegistrtion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
-            //"[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"nftMinterSCAddr\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"Doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"Patient\",\"type\":\"address\"}],\"name\":\"DoctorRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"Patient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"PatientDocuments\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"DTMetadata\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"DTRecordedData\",\"type\":\"string\"}],\"name\":\"PatientRequestedToRegister\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"registerDoctors\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"Documents\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"DTMetadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"DataURI\",\"type\":\"string\"}],\"name\":\"requestPatientRegistrtion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_SessionID\",\"type\":\"uint256\"}],\"name\":\"SessionUploaded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_sessionURI\",\"type\":\"string\"}],\"name\":\"UploadSession\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_sessionID\",\"type\":\"uint256\"}],\"name\":\"getSessionURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"RegisteredDoctors\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"registered\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"patientAddr\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SessionID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]";
 
         Contract contract = SDKManager.Instance.SDK.GetContract(contractAddress, contractABI);
 
