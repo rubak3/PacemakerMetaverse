@@ -145,6 +145,9 @@ public class OpenAIManager : MonoBehaviour
             else
             {
                 string jsonData = request.downloadHandler.text;
+                String path = Path.Combine(Application.persistentDataPath, "PacemakerRecords.json");
+                File.WriteAllText(path, jsonData);
+                Debug.Log("DT records data downloaded from IPFS and saved to: " + path);
                 startConversation(jsonData);
             }
         }
