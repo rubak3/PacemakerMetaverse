@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 3007899440
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: pacemakerasset
+      Dependencies: {}
+    Info_1:
+      Name: testbundle
+      Dependencies: {}

@@ -1,0 +1,20 @@
+<linker>
+	<assembly fullname="Assembly-CSharp" ignoreIfMissing="1">
+		<type fullname="StartManager">
+			<method name="ConnectWallet"/>
+			<method name="EnterGame"/>
+		</type>
+	</assembly>
+	<assembly fullname="Thirdweb.Core" ignoreIfMissing="1">
+		<type fullname="MetaMask.Transports.Unity.UI.MetaMaskOTPPanel">
+			<method name="OnDisconnect"/>
+			<method name="OnDisconnect"/>
+			<method name="OnDisconnect"/>
+		</type>
+		<type fullname="MetaMask.Transports.Unity.UI.MetaMaskUnityUIQRImage">
+			<method name="SwitchMode"/>
+			<method name="SwitchMode"/>
+			<method name="SwitchMode"/>
+		</type>
+	</assembly>
+</linker>
