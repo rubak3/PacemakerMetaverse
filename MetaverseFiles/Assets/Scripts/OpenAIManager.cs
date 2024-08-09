@@ -41,7 +41,7 @@ public class OpenAIManager2 : MonoBehaviour
 
         //Load data from IPFS and set up button listener
         string RecordsHash = PlayerPrefs.GetString("RecordsHash");
-        string url = "https://gateway.pinata.cloud/ipfs/" + RecordsHash;
+        string url = "https://ipfs.io/ipfs/" + RecordsHash;
         StartCoroutine(DownloadJsonFromIPFS(url));
 
         OKButton.onClick.AddListener(() => GetResponse());
