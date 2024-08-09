@@ -24,7 +24,7 @@ public class OpenAIManager : MonoBehaviour
         openAI = new OpenAIApi("Your-API-Key"); // Ensure you have your API key here
         OKButton.onClick.AddListener(() => getResponse());
         string RecordsHash = PlayerPrefs.GetString("RecordsHash");
-        string url = "https://gateway.pinata.cloud/ipfs/" + RecordsHash;
+        string url = "https://ipfs.io/ipfs/" + RecordsHash;
         StartCoroutine(DownloadJsonFromIPFS(url));
     }
 
