@@ -23,7 +23,7 @@ public class PacemakerRendering : MonoBehaviour
         string ipfsHash = PlayerPrefs.GetString("DTHash");
 
         // Public IPFS gateway URL
-        string ipfsUrl = "https://gateway.pinata.cloud/ipfs/" + ipfsHash;
+        string ipfsUrl = "https://ipfs.io/ipfs/" + ipfsHash;
 
         // Request the asset bundle from the IPFS gateway URL
         UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(ipfsUrl);
