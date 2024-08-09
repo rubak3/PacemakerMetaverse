@@ -150,7 +150,7 @@ namespace Thirdweb
 
             // Set up Client ID and Bundle ID
 
-            options.clientId = string.IsNullOrEmpty(clientId) ? null : "7359a893ec24121e82f56d835a7b09aa";
+            options.clientId = string.IsNullOrEmpty(clientId) ? null : clientId;
             options.bundleId = string.IsNullOrEmpty(bundleIdOverride) ? Application.identifier.ToLower() : bundleIdOverride;
 
             // Set up supported chains
