@@ -50,11 +50,10 @@ public class StartManager : MonoBehaviour
         Text2.text = "You have access to the metaverse! Press the button to start";
         StartButton.SetActive(true);
 
-        string token = await contract.Read<string>("NFTOwners", address);
-        string DTHash = await contract.Read<string>("getDTURI", int.Parse(token));
+        string DTHash = await contract.Read<string>("getDTURI");
         PlayerPrefs.SetString("DTHash", DTHash);
 
-        string RecordsHash = await contract.Read<string>("getRecordsURI", address);
+        string RecordsHash = await contract.Read<string>("getRecordsURI");
         PlayerPrefs.SetString("RecordsHash", RecordsHash);
     }
 
