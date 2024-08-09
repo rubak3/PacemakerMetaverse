@@ -1,47 +1,49 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract NFTManager is ERC721URIStorage, Ownable(msg.sender) {
-    uint256 public _tokenID;
+contract NFTManager is ERC721URIStorage, Ownable(msg.sender), ReentrancyGuard {
+    uint256 public tokenId;
 
-    mapping(address => bool) public RegisteredUsers;
-    mapping(address => uint256) public NFTOwners;
-    mapping(address => string) public DTRecordsURI;
+    mapping(address => bool) public registeredUsers;
+    mapping(address => uint256) public nftOwners;
+    mapping(address => string) public dtRecordsUri;
 
-    event UserRegisteredAndNFTMinted(address User, uint256 TokenID); 
-    event UserRemovedAndNFTBurned(address User, uint256 TokenID);
+    event UserRegisteredAndNFTMinted(address user, uint256 tokenId); 
+    event UserRemovedAndNFTBurned(address user, uint256 tokenId);
 
     constructor() ERC721("DigitalTwinNFT", "DTNFT") {
-        _tokenID = 0;
+        tokenId = 0;
     }
 
-    function mintDTNFT(string memory DTMetadata, address User, string memory DTRecords) public onlyOwner {
-        RegisteredUsers[User] = true;
-        NFTOwners[User] = _tokenID;
-        _safeMint(User, _tokenID);
-        _setTokenURI(_tokenID, DTMetadata);
-        DTRecordsURI[User] = DTRecords;
-        emit UserRegisteredAndNFTMinted(User, _tokenID);
-        _tokenID++;
+    function mintDTNFT(string memory dtMetadata, address user, string memory dtRecords) public onlyOwner nonReentrant {
+        registeredUsers[user] = true;
+        uint256 currentTokenId = tokenId;
+        nftOwners[user] = currentTokenId;
+        tokenId++;
+        
+        _safeMint(user, currentTokenId);
+        _setTokenURI(currentTokenId, dtMetadata);
+        dtRecordsUri[user] = dtRecords;
+        emit UserRegisteredAndNFTMinted(user, currentTokenId);
     }
 
-    function burnNFT(address User) public onlyOwner{
-        _burn(NFTOwners[User]);
-        RegisteredUsers[User] = false;
-        delete NFTOwners[User];
-        emit UserRemovedAndNFTBurned(User, _tokenID);
+    function burnNFT(address user) public onlyOwner {
+        _burn(nftOwners[user]);
+        registeredUsers[user] = false;
+        delete nftOwners[user];
+        emit UserRemovedAndNFTBurned(user, nftOwners[user]);
     }
 
-    function getRecordsURI() public view returns(string memory) {
-        return DTRecordsURI[msg.sender];
+    function getRecordsURI() public view returns (string memory) {
+        return dtRecordsUri[msg.sender];
     }
 
     function getDTURI() public view returns (string memory) {
-        return tokenURI(NFTOwners[msg.sender]);
+        return tokenURI(nftOwners[msg.sender]);
     }
-
 }
