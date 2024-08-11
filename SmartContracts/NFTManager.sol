@@ -10,8 +10,8 @@ contract NFTManager is ERC721URIStorage, Ownable(msg.sender), ReentrancyGuard {
     uint256 public tokenId;
 
     mapping(address => bool) public registeredUsers;
-    mapping(address => uint256) public nftOwners;
-    mapping(address => string) public dtRecordsUri;
+    mapping(address => uint256) private nftOwners;
+    mapping(address => string) private dtRecordsUri;
 
     event UserRegisteredAndNFTMinted(address user, uint256 tokenId); 
     event UserRemovedAndNFTBurned(address user, uint256 tokenId);
