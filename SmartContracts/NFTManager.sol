@@ -21,6 +21,7 @@ contract NFTManager is ERC721URIStorage, Ownable(msg.sender), ReentrancyGuard {
     }
 
     function mintDTNFT(string memory dtMetadata, address user, string memory dtRecords) public onlyOwner nonReentrant {
+        require(!registeredUsers[user], "User is already registered");
         registeredUsers[user] = true;
         uint256 currentTokenId = tokenId;
         nftOwners[user] = currentTokenId;
