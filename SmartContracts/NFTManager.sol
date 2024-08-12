@@ -39,11 +39,11 @@ contract NFTManager is ERC721URIStorage, Ownable(msg.sender), ReentrancyGuard {
         emit UserRemovedAndNFTBurned(user, nftOwners[user]);
     }
 
-    function getRecordsURI() public view returns (string memory) {
+    function getDTRecords() public view returns (string memory) {
         return dtRecordsUri[msg.sender];
     }
 
-    function getDTURI() public view returns (string memory) {
+    function getDTMetadata() public view returns (string memory) {
         return tokenURI(nftOwners[msg.sender]);
     }
 }
