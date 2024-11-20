@@ -41,7 +41,7 @@ contract Registration is Ownable(msg.sender) {
     }
 
     function registerDoctors(address doctor) public onlyRegisteredUsers {
-        require(!registeredDoctors[doctor], "Doctor is already registered");
+        require(!registeredDoctors[doctor].registered, "Doctor is already registered");
         registeredDoctors[doctor].registered = true;
         registeredDoctors[doctor].patientAddr = msg.sender;
         emit DoctorRegistered(doctor, msg.sender);
