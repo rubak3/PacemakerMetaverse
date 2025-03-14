@@ -15,6 +15,7 @@ contract NFTManager is ERC721URIStorage, Ownable(msg.sender), ReentrancyGuard {
 
     event UserRegisteredAndNFTMinted(address user, uint256 tokenId); 
     event UserRemovedAndNFTBurned(address user, uint256 tokenId);
+    event RecordsUpdated(address user, uint256 tokenId);
 
     constructor() ERC721("DigitalTwinNFT", "DTNFT") {
         tokenId = 0;
@@ -31,6 +32,12 @@ contract NFTManager is ERC721URIStorage, Ownable(msg.sender), ReentrancyGuard {
         _setTokenURI(currentTokenId, dtMetadata);
         dtRecordsUri[user] = dtRecords;
         emit UserRegisteredAndNFTMinted(user, currentTokenId);
+    }
+
+    function updateDTRecords(string memory newRecords) public {
+        require(registeredUsers[msg.sender], "User is not registered");
+        dtRecordsUri[msg.sender] = newRecords;
+        emit RecordsUpdated(msg.sender, nftOwners[msg.sender]);
     }
 
     function burnNFT(address user) public onlyOwner {
