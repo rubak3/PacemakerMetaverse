@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Stress Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+    <h2>Stress Testing - Multiple Users</h2>
+    <button onclick="connectMetaMask()">Connect MetaMask</button>
+    <button onclick="startBCStressTest()">Start Blockchain Stress Test</button>
+    <button onclick="startLLMStressTest()">Start LLM Stress Test</button>
+    <button onclick="startIPFSRetrieveStressTest()">Start IPFS Retrieve Stress Test</button>
+    <button onclick="startIPFSUploadStressTest()">Start IPFS Upload Test</button>
+
+    <script>
+        const SEPOLIA_RPC_URL = "https://eth-sepolia.g.alchemy.com/v2/_lED9MPHnaaPp6BeECYRElg2O4s7HIKY";
+            
+
+        // List of Private Keys for Different Users (Replace with real private keys)
+        const userPrivateKeys = [
+        ];
+
+        const OPENAI_API_KEY = ""; // OpenAI API Key
+
+        // List of Different Questions
+        const questions = [
+            "What is the role of AI in CDSS"
+        ];
+
+        let provider;
+        let signers = []; // Multiple user wallets
+        let userAddresses = []; // Multiple users
+
+        const registrationContractAddress = "0x357fF961ee29cA3003DA0358C0B9FfCe2730F9d6";
+        const registrationAbi = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "nftManagerSCAddr",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "OwnableInvalidOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "OwnableUnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "doctor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "DoctorRegistered",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "sessionId",
+				"type": "uint256"
+			}
+		],
+		"name": "SessionUploaded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "userDocuments",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "dtMetadata",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "dtRecords",
+				"type": "string"
+			}
+		],
+		"name": "UserRequestedToRegister",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "sessId",
+				"type": "uint256"
+			}
+		],
+		"name": "getSessionURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "doctor",
+				"type": "address"
+			}
+		],
+		"name": "registerDoctors",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "registeredDoctors",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "registered",
+				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "patientAddr",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "userDocuments",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dtMetadata",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dtRecords",
+				"type": "string"
+			}
+		],
+		"name": "requestUserRegistration",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sessionId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "sessionUri",
+				"type": "string"
+			}
+		],
+		"name": "uploadSession",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+];
+
+
+        /////////////////////////////////// Blockchain Stress Testing ///////////////////////////////////////
+        
+        function generateUniqueTransactionData() {
+            const timestamp = Date.now();
+            const randomHash = ethers.keccak256(ethers.toUtf8Bytes(timestamp.toString())).slice(0, 42);
+            return {
+                userDocuments: `Qm${randomHash.slice(2, 10)}${randomHash.slice(10, 18)}`,
+                dtMetadata: `Qm${randomHash.slice(18, 26)}${randomHash.slice(26, 34)}`,
+                dtRecords: `Qm${randomHash.slice(34, 42)}${randomHash.slice(2, 10)}`
+            };
+        }
+
+        // Connect Different Wallets (Using Different Private Keys)
+        async function connectMetaMask() {
+            provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
+
+            signers = userPrivateKeys.map(privateKey => new ethers.Wallet(privateKey, provider));
+            userAddresses = await Promise.all(signers.map(signer => signer.getAddress()));
+
+            console.log(`Connected Users:`);
+            userAddresses.forEach((address, index) => console.log(`User ${index + 1}: ${address}`));
+        }
+
+        // Execute Smart Contract Transaction Securely (Different Users)
+        async function executeSmartContract(functionName, params, signer) {
+            try {
+                const contract = new ethers.Contract(registrationContractAddress, registrationAbi, signer);
+                console.log(`User ${await signer.getAddress()} starting transaction: ${functionName}`);
+
+                const startTime = performance.now();
+                const gasLimit = 3000000;
+                let tx;
+
+                if (functionName === "requestUserRegistration") {
+                    tx = await contract.requestUserRegistration(...params, { gasLimit });
+                } else if (functionName === "uploadSession") {
+                    tx = await contract.uploadSession(...params, { gasLimit });
+                }
+
+                console.log(`Waiting for confirmation: ${tx.hash}`);
+                const receipt = await tx.wait(); // Wait for confirmation
+                const endTime = performance.now();
+
+                const executionTime = (endTime - startTime).toFixed(2);
+                console.log(`User ${await signer.getAddress()} Transaction Confirmed: ${tx.hash} (Execution Time: ${executionTime} ms)`);
+
+                return executionTime;
+            } catch (error) {
+                console.error(`Smart Contract Error: ${error.message}`);
+                return null;
+            }
+        }
+
+        // Stress Test Execution with Different Users
+        async function startBCStressTest() {
+            const userCounts = [1, 2, 5, 10, 20];
+
+            for (let userCount of userCounts) {
+                console.log(`Running stress test with ${userCount} different users...`);
+
+                let executionTimes = [];
+                let smartContractPromises = [];
+
+                for (let i = 0; i < userCount; i++) {
+                    if (i >= signers.length) break; // Avoid exceeding available wallets
+                    const uniqueData = generateUniqueTransactionData();
+                    smartContractPromises.push(
+                        executeSmartContract("requestUserRegistration", [
+                            uniqueData.userDocuments,
+                            uniqueData.dtMetadata,
+                            uniqueData.dtRecords
+                        ], signers[i]).then(time => {
+                            if (time !== null && !isNaN(time)) {
+                                executionTimes.push(parseFloat(time));
+                            }
+                        })
+                    );
+                }
+
+                // Execute all transactions concurrently
+                await Promise.all(smartContractPromises);
+
+                if (executionTimes.length > 0) {
+                    const sum = executionTimes.reduce((a, b) => a + b, 0);
+                    const avgExecutionTime = (sum / executionTimes.length).toFixed(2);
+                    console.log(`Average Execution Time for ${userCount} users: ${avgExecutionTime} ms`);
+                } else {
+                    console.log(`No successful transactions for ${userCount} users.`);
+                }
+            }
+        }
+
+
+        /////////////////////////////////////////// LLM Stress Testing /////////////////////////////////////////
+
+        // Measure LLM API Response Time (with max tokens = 100)
+        async function interactWithLLM(userId, question) {
+            try {
+                console.log(`Sending LLM request for User ${userId}: ${question}`);
+                const startTime = performance.now();  // Start timer
+
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: question }],
+                        max_tokens: 100 // Limit response to 100 tokens
+                    })
+                });
+
+                const endTime = performance.now();  // End timer
+                const executionTime = (endTime - startTime).toFixed(2);
+                
+                const data = await response.json();
+                console.log(`LLM Response for User ${userId}: ${data.choices[0].message.content}`);
+                console.log(`Execution Time: ${executionTime} ms`);
+
+                return executionTime; // Only return execution time
+            } catch (error) {
+                console.error(`LLM API Error for User ${userId}: ${error.message}`);
+                return null;
+            }
+        }
+
+        // Stress Test Execution with Different Questions & Average Execution Time
+        async function startLLMStressTest() {
+            const userCounts = [1, 2, 5, 10, 20];  // Number of users to simulate
+            
+            for (let userCount of userCounts) {
+                console.log(`Running stress test with ${userCount} concurrent users...`);
+
+                let executionTimes = [];
+                let llmPromises = [];
+
+                for (let i = 0; i < userCount; i++) {
+                    const questionIndex = i % questions.length; // Rotate questions if user count > questions
+                    llmPromises.push(
+                        interactWithLLM(i + 1, questions[questionIndex])
+                            .then(time => {
+                                if (time !== null && !isNaN(time)) {
+                                    executionTimes.push(parseFloat(time));
+                                }
+                            })
+                    );
+                }
+
+                // Execute all LLM queries concurrently
+                await Promise.all(llmPromises);
+
+                // Calculate average execution time
+                if (executionTimes.length > 0) {
+                    const sum = executionTimes.reduce((a, b) => a + b, 0);
+                    const avgExecutionTime = (sum / executionTimes.length).toFixed(2);
+                    console.log(`Average Execution Time for ${userCount} users: ${avgExecutionTime} ms`);
+                } else {
+                    console.log(`No successful LLM responses for ${userCount} users.`);
+                }
+            }
+        }
+
+
+
+        ////////////////////////////////////// IPFS Retrieve Stress Testing ////////////////////////////////////
+
+        const ipfsHashes = [
+            "QmTzSTqN3fPe3N5sHzbEbCp4kUefDwdXqqJjYxMaKmKqPb",
+            "QmbMvkveFBL9916bg66ThWBZ7pbDY9B8wgP5qYqscmV9fM",
+            "Qmf3hCAnuh5QpJFgVAm2mkK844EHZQCUSBrzYawiu8ZGYd",
+            "QmcERTHg5MBB6jC2utvTmwAYkHJA7erptdtNbwYdqUzS9A",
+            "QmdyFJ9SEJerb5yppGqXmkN8hBV7ybnRzuS8qbz4iNBi4L",
+            "QmS2vhubLgQNjBUJ61g4dBTA2RW11DkAHxVt4t2UYw1G8d",
+            "QmRwNioaBoP1VqTt2BLSxkzLTvXmAKijRahEWUdXVbEni2",
+            "QmQYmFDRcdsPB6ydF795uMVtSmgL9h9DGimEdDnWWok1M7",
+            "QmeJSdgrvG38H1cNStBEVfMzCNFVPG3fv7eSQL4CnXqhz5",
+            "QmXWWK37MJrtaWzvSQr42mUAkhdiHB66joUnURWARBJwkt",
+            "QmWguNgKgrARUj9H5d5PPLK4wtqTkYAK2XoAFctXD6VKeg",
+            "QmSZYnTG8nudjBL2Byrpra93Z3MGjQxTnHdYMPCi5atPVU",
+            "QmQdanc4baJQmFpywsDCSqc169UUhvrGm4j8HCRUmQ4rxh",
+            "QmZypEpkLV8XnpqrwjZuHTdDtzCyL6t4CMp1KAgdzQBQRy",
+            "QmWCDyGN2b13CpSdtMqXyaYFU1HUFeaCCRf6gBURf1Q2Jq",
+            "QmSxbgrKQU1PytSaFajasgd9NXVUbm3TfSRdLDLqBc4TVv",
+            "QmVj9PN8KC5UrJ5C5wvhXEZwSLAonk34kGmAwD6R72YgTj",
+            "QmVi7TB3MMR5pbnKAphedmEA7iTxrrmqbnPD995XscmT5K",
+            "QmeJSw5Rbe2AFmfTNKn7nDLCV7v6mSVxuWrnTJzHuJVouv",
+            "QmUJnTNsNoFXRyXn5ZykxSZYqkpdoMeG1DDf37GoCZZ4ky"
+        ];
+        
+        const ipfsGateway = "https://gateway.pinata.cloud/ipfs/";
+        
+        function generateRandomNumber() {
+            return Math.floor(Math.random() * 1000000);
+        }
+
+        async function downloadAndUpload(userId, ipfsHash) {
+            try {
+                const randomParam = generateRandomNumber();
+                const ipfsUrl = `${ipfsGateway}${ipfsHash}?nocache=${generateRandomNumber()}`; // Add random number to prevent caching
+                
+                console.log(`Starting process for User ${userId}: ${ipfsUrl}`);
+
+                const startDownload = performance.now();
+                const response = await fetch(ipfsUrl);
+                const endDownload = performance.now();
+                const downloadTime = (endDownload - startDownload).toFixed(2);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch IPFS content: ${response.statusText}`);
+                }
+
+                const textContent = await response.text();
+                console.log(`User ${userId} downloaded content.`);
+                console.log(`Download Time: ${downloadTime} ms`);
+
+                const fileBlob = new Blob([textContent], { type: "text/plain" });
+                const fileName = `ipfs_download_${userId}.json`;
+
+                const startUpload = performance.now();
+                await uploadToOpenAI(fileBlob, fileName);
+                const endUpload = performance.now();
+                const uploadTime = (endUpload - startUpload).toFixed(2);
+
+                const totalTime = (parseFloat(downloadTime) + parseFloat(uploadTime)).toFixed(2);
+
+                console.log(`Upload Time: ${uploadTime} ms`);
+                console.log(`Total Time for User ${userId}: ${totalTime} ms`);
+
+                return { downloadTime: parseFloat(downloadTime), uploadTime: parseFloat(uploadTime), totalTime: parseFloat(totalTime) };
+
+            } catch (error) {
+                console.error(`Error for User ${userId}: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function uploadToOpenAI(fileBlob, fileName) {
+            try {
+                console.log(`Uploading ${fileName} to OpenAI...`);
+
+                const formData = new FormData();
+                formData.append("file", fileBlob, fileName);
+                formData.append("purpose", "assistants"); 
+
+                const response = await fetch("https://api.openai.com/v1/files", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${openaiApiKey}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log("OpenAI API Response:", result);
+
+                if (!response.ok) {
+                    throw new Error(`OpenAI upload failed: ${result.error?.message || response.statusText}`);
+                }
+
+                console.log(`File uploaded successfully to OpenAI: ${result.id}`);
+            } catch (error) {
+                console.error(`OpenAI Upload Error: ${error.message}`);
+            }
+        }
+
+        async function startIPFSRetrieveStressTest() {
+            const userCounts = [1, 2, 5, 10, 20];
+
+            for (let userCount of userCounts) {
+                console.log(`Running IPFS stress test with ${userCount} concurrent users...`);
+
+                let executionTimes = [];
+                let ipfsPromises = [];
+
+                for (let i = 0; i < userCount; i++) {
+                    const ipfsIndex = i % ipfsHashes.length;
+                    ipfsPromises.push(
+                        downloadAndUpload(i + 1, ipfsHashes[ipfsIndex])
+                            .then(timeData => {
+                                if (timeData) {
+                                    executionTimes.push(timeData.totalTime);
+                                }
+                            })
+                    );
+                }
+
+                await Promise.all(ipfsPromises);
+
+                if (executionTimes.length > 0) {
+                    const sum = executionTimes.reduce((a, b) => a + b, 0);
+                    const avgTotalTime = (sum / executionTimes.length).toFixed(2);
+                    console.log(`Average Total Time (Download + Upload) for ${userCount} users: ${avgTotalTime} ms`);
+                } else {
+                    console.log(`No successful operations for ${userCount} users.`);
+                }
+            }
+        }
+
+
+
+        ////////////////////////////////////// IPFS Upload Stress Testing ////////////////////////////////////
+
+        const PINATA_API_KEY = "";
+        const PINATA_SECRET_API_KEY = "";
+        const pinataUploadEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+
+        // List of Different Files (Simulated as Text)
+        const fileContents = [
+            "kvlksndvlk sofsdmvksd ;kvm;lsdmv;lds ;lmv;lsdmv;m",
+            "AI-saasc szvse report: Patient heart rate fsefvsef...",
+            "Blockchain-based kecmlkemc: Patient ABC - Medication XYZ...",
+            "Doctor's note: Follow-up lecmlkmecl in 2 weeks...",
+            "Healthcare research document: New kcmlkmc on diabetes...",
+            "Patient medical record: ID 12345 - lkecmlkemc test results...",
+            "AI-generated health report: emclkemlkc heart rate normal...",
+            "Blockchain-based prescription: Patient ABC - elkmclkmc XYZ...",
+            "Doctor's note: Follow-up required eklcmlk 2 weeks...",
+            "Healthcare ecmlksmc document: New lmcl on diabetes...",
+            "Patient medical lcmlksmclk: ID 12345 - Blood test results...",
+            "AI-generated health report: kemclksmc heart rate normal...",
+            "Blockchain-based lkmdwcm: Patient ABC - Medication XYZ...",
+            "jnks's note: Follow-up klmeclk in 2 weeks...",
+            "Healthcare research ekmksmclk: New findings on diabetes...",
+            "Patient medical record: ID 12345 - Blmcmlkscood test results...",
+            "AI-generated health mlkemclk: Patient heart rate normal...",
+            "Blockchain-mclkwmdlkcm prescription: Patient ABC - Medication XYZ...",
+            "Doctor's note: Follow-up lmelkcmlck in 2 weeks...",
+            "Healthcare wc;ldklcm document: New findings on diabetes..."
+        ];
+
+        // Measure IPFS Upload Time using Pinata
+        async function uploadToIPFS(userId, fileContent) {
+            try {
+                console.log(`Uploading file for User ${userId} to IPFS via Pinata...`);
+                const startTime = performance.now();  // Start timer
+
+                const blob = new Blob([fileContent], { type: "text/plain" });
+                const formData = new FormData();
+                formData.append("file", blob, `User_${userId}_File.txt`);
+
+                const response = await fetch(pinataUploadEndpoint, {
+                    method: "POST",
+                    headers: {
+                        "pinata_api_key": PINATA_API_KEY,
+                        "pinata_secret_api_key": PINATA_SECRET_API_KEY
+                    },
+                    body: formData
+                });
+
+                const endTime = performance.now();  // End timer
+                const executionTime = (endTime - startTime).toFixed(2);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to upload to IPFS: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log(`User ${userId} uploaded file to IPFS: CID ${data.IpfsHash}`);
+                console.log(`Upload Time: ${executionTime} ms`);
+
+                return executionTime; // Only return execution time
+            } catch (error) {
+                console.error(`IPFS Upload Error for User ${userId}: ${error.message}`);
+                return null;
+            }
+        }
+
+        // IPFS Upload Stress Test Execution with Average Upload Time
+        async function startIPFSUploadStressTest() {
+            const userCounts = [1, 2, 5, 10, 20];  // Number of concurrent users to simulate
+
+            for (let userCount of userCounts) {
+                console.log(`Running IPFS upload stress test with ${userCount} concurrent users...`);
+
+                let executionTimes = [];
+                let ipfsPromises = [];
+
+                for (let i = 0; i < userCount; i++) {
+                    const fileIndex = i % fileContents.length; // Rotate files if user count > available files
+                    ipfsPromises.push(
+                        uploadToIPFS(i + 1, fileContents[fileIndex])
+                            .then(time => {
+                                if (time !== null && !isNaN(time)) {
+                                    executionTimes.push(parseFloat(time));
+                                }
+                            })
+                    );
+                }
+
+                // Execute all IPFS uploads concurrently
+                await Promise.all(ipfsPromises);
+
+                // Calculate average upload time
+                if (executionTimes.length > 0) {
+                    const sum = executionTimes.reduce((a, b) => a + b, 0);
+                    const avgExecutionTime = (sum / executionTimes.length).toFixed(2);
+                    console.log(`Average Upload Time for ${userCount} users: ${avgExecutionTime} ms`);
+                } else {
+                    console.log(`No successful IPFS uploads for ${userCount} users.`);
+                }
+            }
+        }
+
+
+    </script>
+</body>
+</html>
