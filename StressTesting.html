@@ -20,13 +20,6 @@
         const userPrivateKeys = [
         ];
 
-        const OPENAI_API_KEY = ""; // OpenAI API Key
-
-        // List of Different Questions
-        const questions = [
-            "What is the role of AI in CDSS"
-        ];
-
         let provider;
         let signers = []; // Multiple user wallets
         let userAddresses = []; // Multiple users
@@ -390,6 +383,14 @@
 
         /////////////////////////////////////////// LLM Stress Testing /////////////////////////////////////////
 
+
+	const OPENAI_API_KEY = ""; // OpenAI API Key
+
+        // List of Different Questions
+        const questions = [
+            "What is the role of AI in CDSS"
+        ];
+	    
         // Measure LLM API Response Time (with max tokens = 100)
         async function interactWithLLM(userId, question) {
             try {
@@ -605,26 +606,6 @@
 
         // List of Different Files (Simulated as Text)
         const fileContents = [
-            "kvlksndvlk sofsdmvksd ;kvm;lsdmv;lds ;lmv;lsdmv;m",
-            "AI-saasc szvse report: Patient heart rate fsefvsef...",
-            "Blockchain-based kecmlkemc: Patient ABC - Medication XYZ...",
-            "Doctor's note: Follow-up lecmlkmecl in 2 weeks...",
-            "Healthcare research document: New kcmlkmc on diabetes...",
-            "Patient medical record: ID 12345 - lkecmlkemc test results...",
-            "AI-generated health report: emclkemlkc heart rate normal...",
-            "Blockchain-based prescription: Patient ABC - elkmclkmc XYZ...",
-            "Doctor's note: Follow-up required eklcmlk 2 weeks...",
-            "Healthcare ecmlksmc document: New lmcl on diabetes...",
-            "Patient medical lcmlksmclk: ID 12345 - Blood test results...",
-            "AI-generated health report: kemclksmc heart rate normal...",
-            "Blockchain-based lkmdwcm: Patient ABC - Medication XYZ...",
-            "jnks's note: Follow-up klmeclk in 2 weeks...",
-            "Healthcare research ekmksmclk: New findings on diabetes...",
-            "Patient medical record: ID 12345 - Blmcmlkscood test results...",
-            "AI-generated health mlkemclk: Patient heart rate normal...",
-            "Blockchain-mclkwmdlkcm prescription: Patient ABC - Medication XYZ...",
-            "Doctor's note: Follow-up lmelkcmlck in 2 weeks...",
-            "Healthcare wc;ldklcm document: New findings on diabetes..."
         ];
 
         // Measure IPFS Upload Time using Pinata
